@@ -279,28 +279,34 @@ def findDependentVariables(variables, var_ID, indices):
   :param var_ID: variable ID (integer)
   :return:
   """
-  d_vars = set()
-  d_equs = set()
+  found_vars = set()
+  found_equs = set()
 
   # - key: equation_ID(integer)
   # - value: (lhs - variable_ID, rhs - incidence list (integers) )
 
   incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(variables)
-  iterateBipartiteGraph(inv_incidence_dictionary, variables, incidence_dictionary, d_vars, d_equs, var_ID)
-  d_vars_text = ""
-  d_equs_text = ""
-  for var_ID in d_vars:
-    label = variables[var_ID]["label"]
-    d_vars_text += "\n %s" % label
-  for eq_ID in d_equs:
+  iterateBipartiteGraph(inv_incidence_dictionary, variables, incidence_dictionary, found_vars, found_equs, var_ID)
+  found_vars_text = ""
+  found_equs_text = ""
+  for var_ID in found_vars:
+    try:
+      label = variables[var_ID]["label"]
+    except:
+      label = variables[var_ID].label
+    found_vars_text += "\n %s" % label
+  for eq_ID in found_equs:
     lhs, incidence_list = incidence_dictionary[eq_ID]
-    equation = variables[lhs]["equations"][eq_ID]
+    try:
+      equation = variables[lhs]["equations"][eq_ID]
+    except:
+      equation = variables[lhs].equations[eq_ID]
     rhs = equation["rhs"]
     rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
     # print("debugging -- rhs", rhs, rhs_rendered)
-    d_equs_text += "\n %s" % rhs_rendered
+    found_equs_text += "\n %s" % rhs_rendered
 
-  return d_vars, d_equs, d_vars_text, d_equs_text
+  return found_vars, found_equs, found_vars_text, found_equs_text
 
 
 def iterateBipartiteGraph(inv_incidence_dictionary, variables, incidence_dictionary, d_vars, d_equs, var_ID):
@@ -1868,7 +1874,11 @@ class Implicit(Operator):
     Operator.__init__(self, space)
 
     self.args = arg
-    self.var_to_solve = var_to_solve
+    l,r =str(arg).split("_")
+    var_function_ID = int(r)
+    self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name) #var_to_solve
+    l,r = str(self.var_to_solve).split("_")
+    var_to_solve_ID = int(r)
 
     self.doc = "Root"
 
@@ -1884,6 +1894,17 @@ class Implicit(Operator):
       # TODO: this searches only one level down...
       self.msg = 'warning >>> variable %s not in incidence list' % var_to_solve
 
+    found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.space.variables,
+                                                                                      var_function_ID,
+                                                                                      self.space.indices)
+
+    print("debugging -- collect equations for the root expression:", found_vars, found_equs, found_vars_text,
+          found_equs_text)
+    if var_to_solve_ID in found_vars:
+      print("debugging -- that's great, found it")
+    else:
+      print("that's a problem -- variable not in the set")
+      raise VarError("root error -- no dependency on the variable to be solved for")
     self.units = var_to_solve.units
     self.tokens = self.copyTokens(var_to_solve)
     self.index_structures = sorted(arg.index_structures)

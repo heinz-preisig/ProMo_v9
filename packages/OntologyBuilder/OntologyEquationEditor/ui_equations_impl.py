@@ -265,6 +265,9 @@ class UI_Equations(QtWidgets.QWidget):
     self.ui.lineExpression.setFocus()
 
   def on_lineExpression_returnPressed(self):
+    # make variable available for checking in implicit (root) operator
+    self.variables.to_define_variable_name = str(self.ui.lineNewVariable.text())
+
     if self.__checkExpression():
       self.ui.pushAccept.show()
     else:

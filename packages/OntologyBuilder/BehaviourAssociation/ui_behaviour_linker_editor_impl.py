@@ -515,10 +515,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       self.__makeVariantList(True)
 
       incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.ontology_container.variables)
-      d_vars, d_equs, d_vars_text, d_equs_text = findDependentVariables(self.ontology_container.variables, 95,
+      found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.ontology_container.variables, 95,
                                                                         self.ontology_container.indices)
 
-      print("debugging -- collect equations for the root expression:",d_vars, d_equs, d_vars_text, d_equs_text )
+      print("debugging -- collect equations for the root expression:",found_vars, found_equs, found_vars_text, found_equs_text )
       #
       # file_name = obj.replace("|", "__").replace(".","_")
       # makeLatexDoc(file_name, entity_assignments, self.ontology_container)
