@@ -575,7 +575,9 @@ class ModelContainer(dict):
 
   def removeKnot(self, nodeID, arcID, x, y):
     knot_data = self["scenes"][nodeID]["arcs"][arcID]
-    knot_data.remove([x, y])
+    assert isinstance(knot_data, object)
+    knot_data.remove((x, y))
+    print("debugging -- removing know")
 
   def updateKnotPosition(self, nodeID, arc_ID, index, x, y):
     knot_list = self["scenes"][nodeID]["arcs"][arc_ID]
