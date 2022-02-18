@@ -635,6 +635,8 @@ class UiOntologyDesign(QMainWindow):
       self.variables[lhs_var_ID].setLanguage(language)
       compiled_label = str(self.variables[lhs_var_ID])
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+      if "Root" in expression:
+        self.variables.to_define_variable_name = self.variables[lhs_var_ID].label #aliases["global_ID"]
       compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language)
 
       try:
@@ -655,8 +657,7 @@ class UiOntologyDesign(QMainWindow):
               IndexStructureError,
               VarError,
               ) as _m:
-        print(
-                'checked expression failed %s : %s = %s -- %s' % (
+        print('checked expression failed %s : %s = %s -- %s' % (
                         equ_ID, self.variables[lhs_var_ID].label, expression, _m))
 
         compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language, verbose=100)

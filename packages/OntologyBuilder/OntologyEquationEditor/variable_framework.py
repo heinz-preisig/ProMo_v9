@@ -931,12 +931,14 @@ class Variables(OrderedDict):
     equ_ID = self.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
     self[var_ID].equations[equ_ID] = equation_record
     self.indexVariables()
+    self.ontology_container.variables.indexEquations()
     print("debugging")
     self.ontology_container.indexEquations()
 
   def replaceEquation(self, var_ID, old_equ_ID, equation_record):
     variable_record = self[var_ID]
     variable_record.equations[old_equ_ID]=equation_record
+    print("debugging -- replace equation")
 
   def existSymbol(self, network, label):
     """
@@ -1862,7 +1864,7 @@ class MaxMin(BinaryOperator):
 
 
 class Implicit(Operator):
-  def __init__(self, arg, var_to_solve, space):
+  def __init__(self, arg, space):
     """
     implicite equations with the syntax:   Root( <expr> , <variable_solve_for>)
     <variable_solve_for> must correspond to lhs of the equation
@@ -1874,7 +1876,10 @@ class Implicit(Operator):
     Operator.__init__(self, space)
 
     self.args = arg
-    l,r =str(arg).split("_")
+    try:
+      l,r =str(arg).split("_")
+    except:
+      arg_ =
     var_function_ID = int(r)
     self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name) #var_to_solve
     l,r = str(self.var_to_solve).split("_")
@@ -1890,9 +1895,9 @@ class Implicit(Operator):
     # one could have a look at  :  space.eq_variable_incidence_list   and check
     # if the var_to_solve   is in there
 
-    if var_to_solve.label not in space.eq_variable_incidence_list:
+    if self.var_to_solve.label not in space.eq_variable_incidence_list:
       # TODO: this searches only one level down...
-      self.msg = 'warning >>> variable %s not in incidence list' % var_to_solve
+      self.msg = 'warning >>> variable %s not in incidence list' % self.var_to_solve
 
     found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.space.variables,
                                                                                       var_function_ID,
@@ -1905,13 +1910,13 @@ class Implicit(Operator):
     else:
       print("that's a problem -- variable not in the set")
       raise VarError("root error -- no dependency on the variable to be solved for")
-    self.units = var_to_solve.units
-    self.tokens = self.copyTokens(var_to_solve)
-    self.index_structures = sorted(arg.index_structures)
+    self.units = self.var_to_solve.units
+    self.tokens = self.copyTokens(self.var_to_solve)
+    self.index_structures = sorted(self.var_to_solve.index_structures)
 
   def __str__(self):
     language = self.space.language
-    return CODE[language]["Root"] % (self.args, self.var_to_solve)
+    return CODE[language]["Root"] % (self.args)
 
 
 class Product(Operator):
@@ -2307,11 +2312,11 @@ class Expression(VerboseParser):
   Identifier/a -> Variable/s                                               $a=self.space.getVariable(s)
   ;
   Factor/fu ->
-       '\(' Expression/b '\)'                                             $fu=Brackets(b, self.space)
+       '\(' Expression/b '\)'                                              $fu=Brackets(b, self.space)
       | 'Integral' '\(' Expression/dx '::'
           Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'    $fu=Integral(dx,s,ll,ul, self.space)
-      | 'Product'  '\(' Expression/a ',' Identifier/u '\)'                 $fu=Product(a, u, self.space)
-      | 'Root'  '\(' Expression/a ',' Identifier/u '\)'                    $fu=Implicit(a, u, self.space)
+      | 'Product'  '\(' Expression/a ',' Identifier/u '\)'                 $fu=Product(a, self.space)
+      | 'Root'  '\(' Identifier/a '\)'                                     $fu=Implicit(a, self.space)
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                 $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'              $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'               $fu=ParDifferential(x,y, self.space)

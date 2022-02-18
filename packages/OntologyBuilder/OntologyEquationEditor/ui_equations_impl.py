@@ -458,6 +458,7 @@ class UI_Equations(QtWidgets.QWidget):
       self.variables.replaceEquation(var_ID, old_equ_ID, equation_record)
 
     self.variables.indexVariables()
+    self.ontology_container.indexEquations()
     self.update_space_information.emit()
 
     self.ui.groupEquationEditor.hide()

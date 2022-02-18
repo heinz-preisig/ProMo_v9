@@ -292,7 +292,7 @@ CODE[language]["blockProd"] = CODE[language]["function"]["blockProd"] + \
                               CODE[language]["operator"]["in"] + "{}" + \
                               CODE[language]["delimiter"][")"]
 
-CODE[language]["Root"] = CODE[language]["function"]["Root"] + CODE[language]["combi"]["tuple"]
+CODE[language]["Root"] = CODE[language]["function"]["Root"] + CODE[language]["combi"]["single_argument"]
 
 CODE[language]["Stack"] = CODE[language]["function"]["Stack"] + \
                           CODE[language]["delimiter"]["("] + \
@@ -345,7 +345,7 @@ CODE[language]["min"] = "min(%s, %s)"
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:  # UNITARY_NO_UNITS + UNITARY_RETAIN_UNITS:
   CODE[language][f] = f + "(%s)"  # identical syntax
 
-CODE[language]["Root"] = "Root(%s,%s)"
+CODE[language]["Root"] = "Root(%s)"
 CODE[language]["MixedStack"] = "MixedStack(%s)"
 CODE[language]["Stack"] = "Stack(%s)"
 
@@ -397,7 +397,7 @@ CODE[language]["left"] = "left(%s)"
 CODE[language]["right"] = "right(%s)"
 
 CODE[language]["blockProd"] = "blockProd({}, {}, {})"
-CODE[language]["Root"] = "Root(%s,%s)"
+CODE[language]["Root"] = "Root(%s)"
 CODE[language]["MixedStack"] = "MixedStack(%s)"
 CODE[language]["Stack"] = "Stack(%s)"
 
@@ -470,7 +470,7 @@ CODE[language]["right"] = "right(%s)"
 CODE[language]["inv"] = "np.reciprocal(%s)"
 CODE[language]["sign"] = "np.sign(%s)"
 CODE[language]["blockProd"] = "blockProduct({}, {}, {})"
-CODE[language]["Root"] = "Root(%s, %s)"
+CODE[language]["Root"] = "Root(%s)"
 CODE[language]["MixedStack"] = "MixedStack(%s)"
 CODE[language]["Stack"] = "Stack(%s)"
 CODE[language]["obj"] = "self.{}"
@@ -521,7 +521,7 @@ CODE[language]["inv"] = "np.reciprocal(%s)"
 CODE[language]["sign"] = "np.sign(%s)"
 
 CODE[language]["blockProd"] = "blockProduct(%s, %s, %s)"
-CODE[language]["Root"] = "Root(%s, %s)"
+CODE[language]["Root"] = "Root(%s)"
 CODE[language]["MixedStack"] = "MixedStack(%s)"
 CODE[language]["Stack"] = "Stack(%s)"
 
@@ -571,7 +571,7 @@ CODE[language]["inv"] = r"\left( %s \right)^{-1}"
 CODE[language]["sign"] = r"\text{sign} \left( %s \right)"
 
 CODE[language]["blockProd"] = r"\displaystyle \prod_{{ {1} \in {2} }} {0}"
-CODE[language]["Root"] = r"Root\left( %s, %s \right)"
+CODE[language]["Root"] = r"Root\left( %s\right)"
 CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
 CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
 
@@ -633,7 +633,7 @@ for i in ThreePlace_TEMPLATE:
 for c in Special_TEMPLATE:
   OPERATOR_SNIPS.append(str(Special_TEMPLATE[c]))
 
-OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var', 'var'))
+OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var'))
 
 
 def setValidator(lineEdit):
