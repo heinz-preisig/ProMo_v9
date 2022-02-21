@@ -1866,9 +1866,9 @@ class MaxMin(BinaryOperator):
 class Implicit(Operator):
   def __init__(self, arg, space):
     """
-    implicite equations with the syntax:   Root( <expr> , <variable_solve_for>)
+    implicit equations with the syntax:   Root( <variable> = 0 , <variable_solve_for>)
     <variable_solve_for> must correspond to lhs of the equation
-    :param arg: expression
+    :param arg: variable
     :param var_to_solve: must correspond to lhs of the equation
     :param space: variable space
     """
@@ -1876,43 +1876,35 @@ class Implicit(Operator):
     Operator.__init__(self, space)
 
     self.args = arg
-    try:
-      l,r =str(arg).split("_")
-    except:
-      arg_ =
-    var_function_ID = int(r)
-    self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name) #var_to_solve
-    l,r = str(self.var_to_solve).split("_")
-    var_to_solve_ID = int(r)
-
     self.doc = "Root"
 
-    # RULE: variable to be solved for should appear explicitly in the expression to be solved
-    # get variable defined as lhs - must appear on the rhs
-    # if variable exists -- no worries
-    # if not then things are difficult  x = ax for example:
-    # what should be the units ? no hands on them neither the indexing.
-    # one could have a look at  :  space.eq_variable_incidence_list   and check
-    # if the var_to_solve   is in there
+    # NOTE: do the checks only with the input language
+    if self.space.language == "global_ID":
+      l,r =str(arg).split("_")
+      print("debugging", self.space.language)
+      var_function_ID = int(r)
+      self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name) #var_to_solve
+      l,r = str(self.var_to_solve).split("_")
+      var_to_solve_ID = int(r)
 
-    if self.var_to_solve.label not in space.eq_variable_incidence_list:
-      # TODO: this searches only one level down...
-      self.msg = 'warning >>> variable %s not in incidence list' % self.var_to_solve
+      if self.var_to_solve.label not in space.eq_variable_incidence_list:
+        # TODO: this searches only one level down...
+        self.msg = 'warning >>> variable %s not in incidence list' % self.var_to_solve
+        
+      found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.space.variables,
+                                                                                        var_function_ID,
+                                                                                        self.space.indices)
 
-    found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.space.variables,
-                                                                                      var_function_ID,
-                                                                                      self.space.indices)
-
-    print("debugging -- collect equations for the root expression:", found_vars, found_equs, found_vars_text,
-          found_equs_text)
-    if var_to_solve_ID in found_vars:
-      print("debugging -- that's great, found it")
-    else:
-      print("that's a problem -- variable not in the set")
-      raise VarError("root error -- no dependency on the variable to be solved for")
-    self.units = self.var_to_solve.units
-    self.tokens = self.copyTokens(self.var_to_solve)
-    self.index_structures = sorted(self.var_to_solve.index_structures)
+      print("debugging -- collect equations for the root expression:", found_vars, found_equs, found_vars_text,
+            found_equs_text)
+      if var_to_solve_ID in found_vars:
+        print("debugging -- that's great, found it")
+      else:
+        print("that's a problem -- variable not in the set")
+        raise VarError("root error -- no dependency on the variable to be solved for")
+      self.units = self.var_to_solve.units
+      self.tokens = self.copyTokens(self.var_to_solve)
+      self.index_structures = sorted(self.var_to_solve.index_structures)
 
   def __str__(self):
     language = self.space.language
