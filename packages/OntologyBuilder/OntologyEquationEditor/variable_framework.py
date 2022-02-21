@@ -1078,13 +1078,15 @@ class CompileSpace:
     networks.add(str(self.expression_definition_network))
     networks = list(networks)
 
-    v_list = []
+    v_list = set()
     for nw in networks:
       for variable_class in self.variables.index_accessible_variables_on_networks[nw]:
         for var_ID in self.variables.index_accessible_variables_on_networks[nw][variable_class]:
           if symbol == self.variables[var_ID].label:
             #   print("found %s"%symbol)
-            v_list.append(var_ID) #self.variables[var_ID])
+            v_list.add(var_ID) #self.variables[var_ID])
+
+    v_list = sorted(v_list)
 
     if len(v_list) == 0:
       print("did not find %s in language %s" % (symbol, self.language))
@@ -1100,8 +1102,10 @@ class CompileSpace:
       print("did not find %s in language %s" % (symbol, self.language))
       raise VarError(" no such variable %s defined" % symbol)
 
-
-    v.language = self.language
+    try:
+      v.language = self.language
+    except:
+      pass
     v.indices = self.indices
     # self.eq_variable_incidence_list.append(var_ID)  # symbol)
 
@@ -1890,7 +1894,7 @@ class Implicit(Operator):
       if self.var_to_solve.label not in space.eq_variable_incidence_list:
         # TODO: this searches only one level down...
         self.msg = 'warning >>> variable %s not in incidence list' % self.var_to_solve
-        
+
       found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(self.space.variables,
                                                                                         var_function_ID,
                                                                                         self.space.indices)
@@ -2062,7 +2066,7 @@ class Instantiate(Operator):
     self.index_structures = sorted(var.index_structures)
     self.units = var.units
     self.tokens = self.copyTokens(var)
-    print("debugging ", self, var.tokens)
+    print("debugging instantiate", self, var.tokens)
 
   def __str__(self):
     self.language = self.space.language
@@ -2307,7 +2311,7 @@ class Expression(VerboseParser):
        '\(' Expression/b '\)'                                              $fu=Brackets(b, self.space)
       | 'Integral' '\(' Expression/dx '::'
           Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'    $fu=Integral(dx,s,ll,ul, self.space)
-      | 'Product'  '\(' Expression/a ',' Identifier/u '\)'                 $fu=Product(a, self.space)
+      | 'Product'  '\(' Expression/a ',' Identifier/u '\)'                 $fu=Product(a, u, self.space)
       | 'Root'  '\(' Identifier/a '\)'                                     $fu=Implicit(a, self.space)
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                 $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'              $fu=TotDifferential(x,y, self.space)

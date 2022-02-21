@@ -267,21 +267,6 @@ class UI_VariableTableDialog(VariableTable):
       self.__change_variable_type_dialogue()
       return
 
-    # l = len(v.equations)
-    # if l != 0:
-    #   if 4 in self.enabled_columns:
-    #     self.enabled_columns.remove(4)
-    #   if 5 in self.enabled_columns:
-    #     self.enabled_columns.remove(5)
-    # else:
-    #   if 4 not in self.enabled_columns:
-    #     self.enabled_columns += [4]
-    #   if 5 not in self.enabled_columns:
-    #     self.enabled_columns += [5]
-    #
-    # if c not in self.enabled_columns:
-    #   return
-
     # execute requested command
     if c == 1:
       # print("clicked 1 - symbol ", self.selected_variable_symbol)
@@ -326,6 +311,7 @@ class UI_VariableTableDialog(VariableTable):
                                                  )
 
     self.variables.addNewVariable(ID=var_ID, **variable_record)
+    self.variables.indexVariables()
     self.reset_table()
     enabled_columns = ENABLED_COLUMNS["edit"]["constant"]
     self.enable_column_selection(enabled_columns)

@@ -178,7 +178,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
         #                                        NO, YES )
         reply = makeMessageBox("There is a variable file \n -- do you want to delete it and restart "
                                                "the whole process?", ["NO","YES"])
-        if reply == YES:
+        if reply == "YES":
           self.lock_delete = False
           old, new, next = saveBackupFile(variable_file)
           self.__writeMessage("variable file has been renamed from %s to %s" % (old, new))
@@ -261,7 +261,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
     self.__indexVariableClasses()
     self.__ui_status("start")
-    if new_variable_file:
+    if self.new_variable_file:
       self.__ui_status("new_variable_file")
 
   def __makeOntology(self):
