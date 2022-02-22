@@ -350,9 +350,6 @@ class UI_VariableTableDialog(VariableTable):
       for id in joint_index:
         index_structures_labels.append(self.indices[id]["label"])
 
-      # index_structures_labels = ["node", "arc"]  # RULE: connection networks have nodes and arcs
-      # self.label_ID_dict = {self.indices[ind_ID]["label"] for ind_ID in self.indices if
-      #                       self.indices[ind_ID]["label"] in index_structures_labels}
     else:
       self.label_ID_dict = self.__getIndexListPerNetwork(self.network)
       index_structures_labels = [self.indices[ind_ID]["label"] for ind_ID in self.label_ID_dict.keys()]

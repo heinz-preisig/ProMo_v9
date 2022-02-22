@@ -67,6 +67,37 @@ j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
 internal = LANGUAGES["internal_code"]
 
 
+# def makeIncidenceDictionaries(variables):
+#   """
+#   variables may be defined by several equations
+#
+#   :param variables: variable dictionary with integrated equation dictionary
+#   :param expression_network: network on which the expression is defined
+#   :return: incidence_dictionary
+#             - key: equation_ID (integer)
+#             - value: (lhs-variable_ID, rhs-incidence list (integers) )
+#            inverse incidence matrix as dictionary
+#             - key : variable ID (integer)
+#             - value: list of equations (integer)
+#   """
+#   incidence_dictionary = {}
+#   inv_incidence_dictionary = {v: [] for v in variables.keys()}
+#   for v in variables:
+#     if v == 18:
+#       print("debugging")
+#     try:
+#       equations = variables[v].equations  # variables as class Variables
+#     except:
+#       equations = variables[v]["equations"]  # variables from variable dict, the variable file format
+#     for e in equations:
+#       inc_list = makeIncidentList(equations[e]["rhs"])
+#       incidence_dictionary[e] = (v, inc_list)
+#       for i in inc_list:
+#         inv_incidence_dictionary[int(i)].append(e)
+#       equations[e]["incidence_list"] = inc_list
+#
+#   return incidence_dictionary, inv_incidence_dictionary
+
 def makeIncidenceDictionaries(variables):
   """
   variables may be defined by several equations
@@ -81,8 +112,10 @@ def makeIncidenceDictionaries(variables):
             - value: list of equations (integer)
   """
   incidence_dictionary = {}
-  inv_incidence_dictionary = {v: [] for v in variables.keys()}
+  inv_incidence_dictionary_set = {v: set() for v in variables.keys()}
   for v in variables:
+    if v == 18:
+      print("debugging")
     try:
       equations = variables[v].equations  # variables as class Variables
     except:
@@ -90,12 +123,25 @@ def makeIncidenceDictionaries(variables):
     for e in equations:
       inc_list = makeIncidentList(equations[e]["rhs"])
       incidence_dictionary[e] = (v, inc_list)
-      for i in inc_list:
-        inv_incidence_dictionary[int(i)].append(e)
       equations[e]["incidence_list"] = inc_list
+      # for i in inc_list:
+      #   inv_incidence_dictionary[int(i)].append(e)
 
-  return incidence_dictionary, inv_incidence_dictionary
+  for e in incidence_dictionary:
+    inc_list = incidence_dictionary[e][1]
+    var = incidence_dictionary[e][0]
+    for i in inc_list:
+      inv_incidence_dictionary_set[int(var)].add(e)
 
+  inv_incidence_dictionary = {}
+  for e in inv_incidence_dictionary_set:
+    inv_incidence_dictionary[e] = sorted(inv_incidence_dictionary_set[e])
+
+
+  # for i in inv_incidence_dictionary:
+  #   inv_incidence_dictionary[i] = sorted(incidence_dictionary[i])
+
+  return incidence_dictionary, inv_incidence_dictionary_set
 
 def makeIncidentList(equation_ID_coded_string):
   """
@@ -112,7 +158,7 @@ def makeIncidentList(equation_ID_coded_string):
     if test_string[0:2] == ID_delimiter["variable"][0:2]:
       inc = i.strip(ID_delimiter["variable"])
       incidence_list.append(inc)
-  return sorted(incidence_list)
+  return sorted(set(incidence_list))
 
 
 def stringBinaryOperation(language, operation, left, right,
@@ -931,9 +977,8 @@ class Variables(OrderedDict):
     equ_ID = self.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
     self[var_ID].equations[equ_ID] = equation_record
     self.indexVariables()
-    self.ontology_container.variables.indexEquations()
-    print("debugging")
     self.ontology_container.indexEquations()
+    print("debugging")
 
   def replaceEquation(self, var_ID, old_equ_ID, equation_record):
     variable_record = self[var_ID]
@@ -1106,7 +1151,10 @@ class CompileSpace:
       v.language = self.language
     except:
       pass
-    v.indices = self.indices
+    try:
+      v.indices = self.indices
+    except:
+      pass
     # self.eq_variable_incidence_list.append(var_ID)  # symbol)
 
     return v
@@ -1646,7 +1694,10 @@ class ExpandProduct(BinaryOperator):
     BinaryOperator.__init__(self, op, a, b, space)
 
     self.doc = 'EXPAND '  # EXPAND TEMPLATES[op] % (a.label, b.label)
-    self.units = a.units * b.units
+    try:
+      self.units = a.units * b.units
+    except:
+      pass
     self.index_structures = self.expandProduct_indexing(a, b)
     self.tokens = self.mergeTokens([a, b])
     pass

@@ -555,7 +555,7 @@ CODE[language]["ParDiff"] = r"\ParDiff{%s}{%s}"
 CODE[language]["TotalDiff"] = r"\TotDiff{%s}{%s}"
 CODE[language]["Integral"] = r"\int_{{ {lower!s} }}^{{ {upper!s} }} \, {integrand!s} \enskip d\,{differential!s}"
 # CODE[language]["Interval"] = r"%s \in \left[ {%s} , {%s} \right] "
-CODE[language]["Product"] = r"\prod\left(  {argument!s}   \\right)"
+CODE[language]["Product"] = r"\prod\left(  {argument!s}   \right)"
 CODE[language]["Instantiate"] = r"\text{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
@@ -1051,8 +1051,8 @@ class DotGraphVariableEquations(VarEqTree):
         colour = "blue"
     image = os.path.join(self.latex_directory, "%s.png" % var_ID_label)
     if not os.path.exists(image):
-      print("missing picture file")
-      reply = makeMessageBox("equation picture file missing",buttons=["OK"],infotext="-- run equation composer and generate files")
+      print("missing picture file:", image)
+      reply = makeMessageBox("equation picture file missing %s "%image,buttons=["OK"],infotext="-- run equation composer and generate files")
     self.simple_graph.node(node_ID_label, "", image=image, style="filled", color=colour)
 
   def addEquation(self, eq_ID_label, first=False):
@@ -1061,8 +1061,8 @@ class DotGraphVariableEquations(VarEqTree):
     colour = "cyan"
     image = os.path.join(self.latex_directory, "%s.png" % eq_ID_label)
     if not os.path.exists(image):
-      print("missing picture file")
-      reply = makeMessageBox("equation picture file missing",buttons=["OK"],infotext="-- run equation composer and generate files")
+      print("missing picture file %s"%image)
+      reply = makeMessageBox("equation picture file missing %s"%image,buttons=["OK"],infotext="-- run equation composer and generate files")
     self.simple_graph.node(node_ID_label, '', image=image, shape="box", height="0.8cm", style="filled", color=colour)
 
 
