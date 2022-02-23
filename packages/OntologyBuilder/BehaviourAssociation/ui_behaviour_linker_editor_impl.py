@@ -321,6 +321,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                   nodes=data["nodes"],
                                                                   IDs=data["IDs"],
                                                                   root_variable=data["root_variable"],
+                                                                  root_equation=data["root_equation"],
                                                                   blocked_list=data["blocked"],
                                                                   buddies_list=data["buddies"],
                                                                   to_be_inisialised=data["to_be_initialised"])
@@ -460,14 +461,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def on_pushButtonLeft_pressed(self):
     self.getState()
-    # print("debugging -- push left button state:", self.state)
+    print("debugging -- push left button state:", self.state)
     if self.state == "make_base":
       # variant = "base"
       var_ID = self.current_base_var_ID
       equ_ID = self.current_base_equ_ID
       obj_str = self.__makeCurrentObjectString()
       blocked = self.list_linked_equations
-      var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID, blocked)
+      var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID, blocked, start_equation=equ_ID)
       self.status_report("generated graph for %s" % (obj_str))
       # component = self.node_arc.strip("s")
       self.selected_variant_str_ID = "base"
@@ -489,6 +490,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       print("debugging -- accepting >>> %s <<< reduced entity object" % self.state)
 
       var_ID = self.selected_base_variable
+      equ_ID = self.selected_base_equation
       obj_str = self.__makeCurrentObjectString()
 
       self.variant_list = self.__makeVariantStringList()
@@ -506,7 +508,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
       blocked = list(set(self.list_linked_equations) | set(self.rightListEquationIDs))
       var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID,
-                                                                          blocked)  # self.rightListEquationIDs)
+                                                                          blocked, start_equation=equ_ID)
       graph_file = var_equ_tree_graph.render()
       self.status_report("generated graph for %s " % (obj_str))
 
@@ -533,9 +535,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     obj_str = self.__makeCurrentObjectString()
     # print("debugging -- update pressed %s" % self.state)
     var_ID = self.selected_base_variable
+    equ_ID = self.selected_base_equation
     blocked = list(set(self.list_linked_equations) or set(self.rightListEquationIDs))
     var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID,
-                                                                        blocked)  # self.rightListEquationIDs)
+                                                                        blocked, start_equation=equ_ID)  # self.rightListEquationIDs)
     graph_file = var_equ_tree_graph.render()
     self.status_report("generated graph for %s " % (obj_str))
 
@@ -701,6 +704,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     entity_object_str = self.__makeCurrentObjectString()
     self.selected_base_variable = self.entity_behaviours[entity_object_str]["root_variable"]
+    self.selected_base_equation = self.entity_behaviours[entity_object_str]["root_equation"]
     self.leftListEquationIDs = self.__makeDuplicateShows()
     self.leftIndex = self.__makeLeftRightList(self.leftListEquationIDs, self.ui.listLeft)
     self.ui.pushButtonLeft.hide()
@@ -830,12 +834,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   # =============================
 
-  def analyseBiPartiteGraph(self, entity, var_ID, blocked):
+  def analyseBiPartiteGraph(self, entity, var_ID, blocked, start_equation=None):
     var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(var_ID,
                                                             self.ontology_container,
                                                             self.ontology_name,
                                                             blocked,
-                                                            entity)
+                                                            entity,
+                                                            start_equation)
 
     # self.__makeLatexDocument(entity, assignments)
     return var_equ_tree_graph, assignments
@@ -871,6 +876,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           # print("debugging -- found D-D", entity_str_ID)
 
       self.selected_base_variable = self.entity_behaviours.getRootVariableID(entity_str_ID)
+      self.selected_base_equation = self.entity_behaviours.getRootEquationID(entity_str_ID)
       if not self.selected_base_variable:
         return
       equation_ID_list = self.entity_behaviours.getEquationIDList(entity_str_ID)

@@ -884,12 +884,13 @@ class VarEqTree():
                   value :: IDs identifiers of type enumberation (integers)
   """
 
-  def __init__(self, variables, var_ID, blocked):
+  def __init__(self, variables, var_ID, blocked, start_equation=None):
     self.TEMPLATE_VARIABLE = "variable_%s"
     self.TEMPLATE_EQUATION = "equation_%s"
     self.variables = variables
     self.var_ID = var_ID
     self.blocked = blocked
+    self.start_equation = start_equation
     self.tree = ObjectTree(self.TEMPLATE_VARIABLE % var_ID)
 
     self.initObjects()
@@ -903,7 +904,16 @@ class VarEqTree():
 
     Tree = self.tree
     stack = []
-    eq_IDs = set(self.get_equs(var_ID)) - blocked_set
+    eq_IDs_set = set(self.get_equs(var_ID)) - blocked_set
+    if self.start_equation != None:
+      eq_IDs = [self.start_equation]
+      for eq in eq_IDs_set:
+        if eq not in eq_IDs:
+          eq_IDs.append(eq)
+    else:
+      eq_IDs = sorted(eq_IDs_set)
+      self.start_equation = eq_IDs[0]
+
     for eq_ID in eq_IDs:
       # if eq_ID == 4:
       #   print("debugging -- found 4")
@@ -962,19 +972,20 @@ class DotGraphVariableEquations(VarEqTree):
 
   # pdfposter -p2x4A3 vars_equs.pdf try2.pdf
 
-  def __init__(self, variables, indices, var_ID, ontology_name, blocked, file_name="vars_equs"):
+  def __init__(self, variables, indices, var_ID, ontology_name, blocked, file_name="vars_equs", start_equation=None):
     self.ontology_name = ontology_name
     self.indices = indices
     self.variables = variables
     self.file_name = file_name
     self.file = None
+    self.start_equation = start_equation
 
     self.latex_directory = os.path.join(DIRECTORIES["ontology_repository"], "%s",
                                         DIRECTORIES["latex"]) % ontology_name
 
     self.ontology_location = DIRECTORIES["ontology_location"] % ontology_name
 
-    super().__init__(variables, var_ID, blocked=blocked)
+    super().__init__(variables, var_ID, blocked=blocked, start_equation=start_equation)
 
   def view(self):
     self.simple_graph.view()  # generates pdf
@@ -1066,14 +1077,15 @@ class DotGraphVariableEquations(VarEqTree):
     self.simple_graph.node(node_ID_label, '', image=image, shape="box", height="0.8cm", style="filled", color=colour)
 
 
-def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocked, file_name):
+def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocked, file_name, start_equation):
   print("debugging --- variable ", variable_ID)
   var_equ_tree = DotGraphVariableEquations(ontology_container.variables,
                                            ontology_container.indices,
                                            variable_ID,
                                            ontology_name,
                                            blocked=blocked,
-                                           file_name=file_name)
+                                           file_name=file_name,
+                                           start_equation=start_equation)
 
   print("debugging -- dotgrap done")
   buddies = getListOfBuddies(ontology_container, var_equ_tree, variable_ID)
@@ -1082,6 +1094,7 @@ def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocke
                               nodes=var_equ_tree.tree["nodes"],
                               IDs=var_equ_tree.tree["IDs"],
                               root_variable=var_equ_tree.var_ID,
+                              root_equation = start_equation,
                               blocked_list=blocked,
                               buddies_list=list(buddies)
                               )

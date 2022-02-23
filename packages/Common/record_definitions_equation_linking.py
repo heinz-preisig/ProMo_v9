@@ -77,6 +77,13 @@ class EntityBehaviour(dict):
     else:
       return None
 
+  def getRootEquationID(self, entity_str_ID):
+    if self[entity_str_ID]:
+      root_variable = int(self[entity_str_ID]["root_equation"])
+      return root_variable
+    else:
+      return None
+
   def getVariantList(self, network_def, entity_def):
     variant_set = set()
     for entity_str_ID in self:
@@ -116,12 +123,13 @@ class VariantRecord(dict):  # ..................................................
   """
   Generates a 'variant' record being used to store base entity representations in the form of list of equations
   """
-  def __init__(self, tree={}, nodes=[], IDs=[], root_variable=None, blocked_list=[], buddies_list=[], to_be_inisialised=[]):
+  def __init__(self, tree={}, nodes=[], IDs=[], root_variable=None, root_equation=None, blocked_list=[], buddies_list=[], to_be_inisialised=[]):
     super()
     self["tree"] = tree
     self["nodes"] = nodes
     self["IDs"] = IDs
     self["root_variable"] = root_variable
+    self["root_equation"] = root_equation
     self["blocked"] = blocked_list
     self["buddies"]= buddies_list
     self["to_be_initialised"] = to_be_inisialised
