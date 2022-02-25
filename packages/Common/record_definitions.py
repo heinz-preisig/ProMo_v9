@@ -274,11 +274,12 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["equations"] = equations  # ..................................................... hash is equation ID, an integer
   self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
   self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
-  self["tokens"] = tokens # ........................................................................................ token
+  self["tokens"] = tokens # ...................................................................................... token
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label
   self["aliases"]["global_ID"] = CODE["global_ID"]["variable"] % var_ID
+
 
   return self
 

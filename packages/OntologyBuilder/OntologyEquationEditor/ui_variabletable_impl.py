@@ -23,10 +23,11 @@ from Common.resources_icons import roundButton
 # from Common.common_resources import globalVariableID
 from Common.qt_resources import NO
 from Common.qt_resources import YES
-from Common.record_definitions import makeCompleteVariableRecord
+from Common.record_definitions import makeCompleteVariableRecord, makeCompletEquationRecord
 from Common.single_list_selector_impl import SingleListSelector
 from Common.ui_radio_selector_w_sroll_impl import UI_RadioSelector
-from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
+from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS, CODE
+from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
 from OntologyBuilder.OntologyEquationEditor.ui_documentation_impl import UI_DocumentationDialog
 from OntologyBuilder.OntologyEquationEditor.ui_physunits_impl import UI_PhysUnitsDialog
@@ -311,6 +312,36 @@ class UI_VariableTableDialog(VariableTable):
                                                  )
 
     self.variables.addNewVariable(ID=var_ID, **variable_record)
+
+    # RULE: if we do not define a port variable in class <<state>>, automatically an instantiation is created.
+    if self.selected_variable_type != "state":
+      var = self.variables[var_ID]
+      value_internal = None
+      for id in self.variables:
+        if self.variables[id].label == "value":
+          value_internal = self.variables[id].aliases["global_ID"]
+
+      var_string = var.aliases["global_ID"]
+      if value_internal:
+        rhs = CODE["global_ID"]["operator"]["Instantiate"] + \
+                    CODE["global_ID"]["delimiter"]["("] + \
+                    var_string + \
+                    CODE["global_ID"]["delimiter"][","] + \
+                    value_internal + \
+                    CODE["global_ID"]["delimiter"][")"]
+      else:
+        rhs = CODE["global_ID"]["operator"]["Instantiate"] + \
+              CODE["global_ID"]["delimiter"]["("] + \
+              var_string + \
+              CODE["global_ID"]["delimiter"][")"]
+
+      print("debugging")
+
+      incidence_list = makeIncidentList(rhs)
+      equation_record = makeCompletEquationRecord(rhs,network=self.network,incidence_list=incidence_list)
+
+      self.variables.addEquation(var_ID, equation_record)
+
     self.variables.indexVariables()
     self.reset_table()
     enabled_columns = ENABLED_COLUMNS["edit"]["constant"]

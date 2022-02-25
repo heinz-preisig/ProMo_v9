@@ -912,6 +912,9 @@ class VarEqTree():
           eq_IDs.append(eq)
     else:
       eq_IDs = sorted(eq_IDs_set)
+      if len(eq_IDs) == 0:
+        print("there is no equation for this variable")
+        return
       self.start_equation = eq_IDs[0]
 
     for eq_ID in eq_IDs:
@@ -1077,7 +1080,7 @@ class DotGraphVariableEquations(VarEqTree):
     self.simple_graph.node(node_ID_label, '', image=image, shape="box", height="0.8cm", style="filled", color=colour)
 
 
-def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocked, file_name, start_equation):
+def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocked, file_name, start_equation=None):
   print("debugging --- variable ", variable_ID)
   var_equ_tree = DotGraphVariableEquations(ontology_container.variables,
                                            ontology_container.indices,
