@@ -28,21 +28,19 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 import Common.common_resources as CR
-import Common.resource_initialisation as RI
-import ModelBuilder.ModelComposer.resources             as R
+import ModelBuilder.ModelComposer.resources as R
 from Common.automata_objects import GRAPH_EDITOR_STATES
-# from Common.automata_objects import STATES               # TODO: What's this?
-from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import NODE_COMPONENT_SEPARATOR
-from Common.resource_initialisation import FILES
+from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.graphics_objects import INTERFACE
 from Common.graphics_objects import INTRAFACE
 from Common.graphics_objects import LOCATION_PARAMETERS
 from Common.graphics_objects import NAMES
 from Common.graphics_objects import OBJECTS_with_state
-from Common.graphics_objects import STATES  # TODO: Bug or real?
+from Common.graphics_objects import STATES
 from Common.graphics_objects import TOOLTIP_TEMPLATES
 from Common.qt_resources import BUTTON_NAMES
+from Common.resource_initialisation import FILES
 from Common.ui_string_dialog_impl import UI_String
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Arc_Edge
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Knot
@@ -115,7 +113,7 @@ class Commander(QtCore.QObject):
     # connect graphics data
     self.graphics_data = self.main.graphics_DATA
 
-    rootID = ROOTID  # str(ROOTID)           #HAP: ID string to integer
+    rootID = ROOTID
     self.state_nodes[rootID] = STATES[self.editor_phase]["nodes"][0]
     self.__makeViewAndScene(rootID)
     self.currently_viewed_node = rootID
@@ -162,7 +160,7 @@ class Commander(QtCore.QObject):
     self.main.writeStatus("")
 
     #
-    # RULE selecting a primitive node or arc implies changing network
+    # RULE selecting a primitive node or arc may imply changing networks
     # try:  # circumvent problems after deleting objects and changing editor mode via GUI control interface
     graphics_root_object = item.parent.graphics_root_object
     state = self.getGraphObjectState(graphics_root_object)
@@ -178,11 +176,6 @@ class Commander(QtCore.QObject):
       # print("node simple network:", network)
       if network in self.main.networks:
         self.main.setNetwork(network, named_network)
-    # except:
-    #   item = self.recover_item
-    #   self.current_ID_node_or_arc = item.getGraphObjectID()
-    #   graphics_root_object = None
-    #   state = None
 
     self.current_object_state = state
 
@@ -779,7 +772,7 @@ class Commander(QtCore.QObject):
           self.main.writeStatus("the nature of the transfer on both sides must be the same")
           return {"failed": True}
       if insert_interface:
-        status  = self.__c41_makeInterface()
+        status = self.__c41_makeInterface()
       # seems all is ok so go ahead and put the intraface
 
       parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
@@ -1301,13 +1294,12 @@ class Commander(QtCore.QObject):
         self.node_group.add(nodeID)
         self.state_nodes[nodeID] = "selected"
       if node_type in [NAMES["intraface"]]:
-        self.selected_intraface_node = nodeID  #TODO: check if needed | actie
+        self.selected_intraface_node = nodeID  # TODO: check if needed | actie
       self.__redrawScene(parentID)
 
     if node_type in [NAMES["branch"]]:
       self.__resetNodeStatesAndSelectedArc()
       self.__redrawScene(nodeID)
-
 
     return {"failed": False}
 
@@ -1410,7 +1402,7 @@ class Commander(QtCore.QObject):
       data = self.model_container["nodes"][ID]
       s = "<nobr> <b> node: <b> </nobr><br/>"
       for d in data:
-        s += "<nobr> %s -- %s </nobr><br/>"%(d, data[d])
+        s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
       # s = TOOLTIP_TEMPLATES["nodes"] % (
       #         data["network"],
       #         data["named_network"],
@@ -1426,7 +1418,7 @@ class Commander(QtCore.QObject):
       data = self.model_container["nodes"][ID]
       s = "<nobr> <b> intraface: <b> </nobr><br/>"
       for d in data:
-        s += "<nobr> %s -- %s </nobr><br/>"%(d, data[d])
+        s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
       # s = TOOLTIP_TEMPLATES["intraface"] % (data["network"],
       #                                       data["named_network"],
       #                                       data["type"],
@@ -1901,10 +1893,10 @@ class Commander(QtCore.QObject):
     #     self.state_nodes[child] = "blocked"  # default is blocked
 
     for node in children:
-      self.__enableNodeOnRule(node,"nodes_allowing_token_conversion")
+      self.__enableNodeOnRule(node, "nodes_allowing_token_conversion")
 
   def __enableNodeOnRule(self, node, rule):
-    self.state_nodes[node] = "blocked"    # default is blocked
+    self.state_nodes[node] = "blocked"  # default is blocked
     network = self.model_container["nodes"][node]["network"]
     if network == self.main.current_network:
       node_data = self.model_container["nodes"][node]
@@ -1934,10 +1926,10 @@ class Commander(QtCore.QObject):
           #  be one
 
           if (self.model_container["nodes"][node]["tokens_left"].keys() == \
-                  self.model_container["nodes"][node]["tokens_right"].keys()) or \
-            (self.main.selected_token[self.main.editor_phase][self.main.current_network] in \
-                    self.model_container["nodes"][node]["tokens_left"].keys()):
-              self.state_nodes[node] = "enabled"
+              self.model_container["nodes"][node]["tokens_right"].keys()) or \
+                  (self.main.selected_token[self.main.editor_phase][self.main.current_network] in \
+                   self.model_container["nodes"][node]["tokens_left"].keys()):
+            self.state_nodes[node] = "enabled"
     pass
 
   def __ruleNodeAccessUndetermined(self):

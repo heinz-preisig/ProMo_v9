@@ -283,7 +283,7 @@ class UI_VariableTableDialog(VariableTable):
       if not_yet_used:
         self.__changeUnits(v)
     elif c == 5:
-      # print("clicked 5 - indexing ", v.index_structures)
+      print("clicked 5 - indexing ", v.index_structures)
       if not_yet_used:
         self.__changeIndexing(v)
     elif c == 6:
