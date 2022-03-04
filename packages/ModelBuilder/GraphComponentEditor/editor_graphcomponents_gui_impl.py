@@ -34,13 +34,15 @@ from Common.common_resources import getOntologyName
 from Common.common_resources import putDataOrdered
 from Common.common_resources import saveBackupFile
 from Common.graphics_objects import ARCS
-from Common.graphics_objects import DECORATIONS_with_state,DECORATIONS_with_application,OBJECTS_with_application
-from Common.graphics_objects import DEFAULT_PHASE
+from Common.graphics_objects import DECORATIONS_with_application
+from Common.graphics_objects import DECORATIONS_with_state
 from Common.graphics_objects import INTERFACE
-from Common.graphics_objects import INTRAFACE,NODES
+from Common.graphics_objects import INTRAFACE
 from Common.graphics_objects import M_None
 from Common.graphics_objects import NAMES
+from Common.graphics_objects import NODES
 from Common.graphics_objects import OBJECTS_colour_defined_separate
+from Common.graphics_objects import OBJECTS_with_application
 from Common.graphics_objects import OBJECTS_with_state
 from Common.graphics_objects import PHASES
 from Common.graphics_objects import STATES
@@ -188,7 +190,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     #   return?
     # try:  # there is an issue when loading the page
     component_data = self.__getComponentData()
-    if not component_data :
+    if not component_data:
       print("debugging -- could not get component data")
       return
     self.__makeListActivity(component_data["action"])
@@ -205,7 +207,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     self.__makeListComponents()
     self.__group_controls("selected_root_object")
 
-  def on_comboApplication_currentTextChanged(self, q_string): #currentTextChanged(self, q_string):
+  def on_comboApplication_currentTextChanged(self, q_string):  # currentTextChanged(self, q_string):
     # q_string = self.ui.comboApplication.currentText()
     print("application selected", q_string)
 
@@ -738,7 +740,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     if network_type == "network":
       listNetworks.addItems(self.networks)
     elif network_type == "intraface":
-      cnw = self.ontology.list_intraconnection_networks#sorted(self.ontology.intraconnection_network_dictionary.keys())
+      cnw = self.ontology.list_intraconnection_networks  # sorted(self.ontology.intraconnection_network_dictionary.keys())
       listNetworks.addItems(cnw)
     elif network_type == "interface":
       cnw = sorted(self.ontology.interconnection_network_dictionary.keys())
@@ -871,9 +873,9 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
       state = M_None
       if self.selected_root_object in OBJECTS_with_state:
         if self.selected_component in DECORATIONS_with_state:
-          state = self.selected_state #current_state
+          state = self.selected_state  # current_state
 
-      if self.selected_root_object in [NAMES["intraface"], NAMES["interface"]] : #Rule: inter and intraface
+      if self.selected_root_object in [NAMES["intraface"], NAMES["interface"]]:  # Rule: inter and intraface
         self.DATA.setData(what,
                           value,
                           phase,
@@ -886,17 +888,15 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
       applications = [M_None]
       if self.selected_root_object in OBJECTS_with_application:
         if self.selected_component in DECORATIONS_with_application:
-          applications=  self.ontology.list_network_node_objects # RULE: if the object has applications then data apply to all
+          applications = self.ontology.list_network_node_objects  # RULE: if the object has applications then data apply to all
 
-
-
-      for application in applications: #RULE: all "applications" have the same action
+      for application in applications:  # RULE: all "applications" have the same action
         self.DATA.setData(what,
                           value,
                           phase,
                           self.selected_root_object,
                           self.selected_component,
-                          application, # self.selected_application,
+                          application,  # self.selected_application,
                           state,
                           )
 
@@ -980,7 +980,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     self.current_application = self.ui.comboApplication.currentText()
     self.selected_state = self.ui.comboEditorState.currentText()
     try:
-      data = self.DATA.getData(self.current_editor_phase, #DEFAULT_PHASE
+      data = self.DATA.getData(self.current_editor_phase,  # DEFAULT_PHASE
                                self.selected_root_object,
                                self.selected_component,
                                self.selected_application,

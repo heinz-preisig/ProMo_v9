@@ -1323,6 +1323,12 @@ class Commander(QtCore.QObject):
     print("__c41_makeInterface -- not yet implemented")
     self.variables = self.main.ontology.variables()
 
+  def __c51_AssignBehaviour(self):
+    print("__c51_AssignBehaviour -- not yet implemented")
+
+  def __c52__InstantiateObject(self):
+    print("__c52__InstantiateObject -- not yet implemented")
+
   # ===================================================================
   def __setName(self, node, name):
     if name == CR.DEFAULT:

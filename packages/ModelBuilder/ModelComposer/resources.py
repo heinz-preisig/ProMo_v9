@@ -87,9 +87,7 @@ ACTIONS["token_topology"] = ["zoom in",
                              ]
 ACTIONS["equation_topology"] = ["make interface",
                                 "instantiate",
-                                "add_equation_object",
-                                "remove_equation_object",
-                                "edit_representation"]
+                                "edit_assignment"]
 
 
 # Cursors ----------------------------------------------------------------------
