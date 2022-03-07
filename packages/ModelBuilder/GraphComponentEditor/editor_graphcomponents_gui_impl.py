@@ -398,6 +398,9 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
   def on_radioNetwork_pressed(self):
     self.__changeData("layer", "network")
 
+  def on_radioNamedNetwork_pressed(self):
+    self.__changeData("layer", "named_network")
+
   def on_radioArc_pressed(self):
     self.__changeData("layer", "arc")
 
@@ -459,7 +462,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
                   if k == "colour":
                     if s in self.STATES_colours:
                       data0[o][d][a][s]["colour"] = deepcopy(self.STATES_colours[s])
-                      print("debugging -- changing colour of ", o, d, a, s, k)
+                      # print("debugging -- changing colour of ", o, d, a, s, k)
                   elif k == "action":
                     pass
                   else:
@@ -501,14 +504,15 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
   def __setupSignals(self):
 
     self.LAYERS = {
-            "mainPanel": self.ui.radioMainPanel,
-            "sidePanel": self.ui.radioSidePanel,
-            "network"  : self.ui.radioNetwork,
-            "arc"      : self.ui.radioArc,
-            "knot"     : self.ui.radioKnot,
-            "node"     : self.ui.radioNode,
-            "property" : self.ui.radioProperty,
-            "text"     : self.ui.radioText
+            "mainPanel"    : self.ui.radioMainPanel,
+            "sidePanel"    : self.ui.radioSidePanel,
+            "network"      : self.ui.radioNetwork,
+            "named_network": self.ui.radioNamedNetwork,
+            "arc"          : self.ui.radioArc,
+            "knot"         : self.ui.radioKnot,
+            "node"         : self.ui.radioNode,
+            "property"     : self.ui.radioProperty,
+            "text"         : self.ui.radioText
             }
 
   def __setupControlLists(self):

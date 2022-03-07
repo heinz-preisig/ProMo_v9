@@ -23,14 +23,15 @@ __status__ = "beta"
 
 import os
 from collections import OrderedDict
-from copy import copy,deepcopy
+from copy import copy
+from copy import deepcopy
 
 from PyQt5 import QtGui
 
 from Common.common_resources import ARC_COMPONENT_SEPARATOR
-from Common.common_resources import getData
-from Common.common_resources import M_any
 from Common.common_resources import M_None
+from Common.common_resources import M_any
+from Common.common_resources import getData
 from Common.qt_resources import PEN_STYLES
 
 NAMES = {
@@ -446,14 +447,15 @@ OBJECTS_not_move = [NAMES["panel"],
                     NAMES["right panel"]]
 
 LAYERS = {
-        "mainPanel": 0,
-        "sidePanel": 5,
-        "network"  : 10,
-        "arc"      : 20,
-        "knot"     : 30,
-        "node"     : 40,
-        "property" : 50,
-        "text"     : 60,
+        "mainPanel"    : 0,
+        "sidePanel"    : 5,
+        "network"      : 10,
+        "named_network": 15,
+        "arc"          : 20,
+        "knot"         : 30,
+        "node"         : 40,
+        "property"     : 50,
+        "text"         : 60,
         }
 
 OBJECTS_changing_position = [NAMES["node"],
@@ -465,10 +467,10 @@ OBJECTS_changing_position = [NAMES["node"],
 
 OBJECTS_colour_defined_separate = [NAMES["network"], NAMES["named_network"]]
 
+
 class GraphObject():
   def __init__(self, **kwargs):
     self.__dict__ = kwargs
-
 
 
 class GraphDataObjects(OrderedDict):
@@ -488,7 +490,7 @@ class GraphDataObjects(OrderedDict):
    """
 
   def __init__(self, dict_application_node_types,
-                          application_arc_types):
+               application_arc_types):
 
     print("debugging")
     for phase in PHASES:
@@ -506,7 +508,7 @@ class GraphDataObjects(OrderedDict):
             if graphics_object != NAMES["connection"]:
               applications = dict_application_node_types[graphics_object]
               for application in applications:
-                self[phase][graphics_object][decoration][application]={}
+                self[phase][graphics_object][decoration][application] = {}
                 states = STATES[phase]["nodes"]
                 for state in states:
                   self[phase][graphics_object][decoration][application][state] = deepcopy(DATA_STRUCTURE[shape])
@@ -530,7 +532,7 @@ class GraphDataObjects(OrderedDict):
   def setData(self, what, value, phase, root_object, decoration, application, state):
     if what != "action":
       if state != M_None:
-        state = STATE_OBJECT_COLOURED  #RULE: only one state indicates the state
+        state = STATE_OBJECT_COLOURED  # RULE: only one state indicates the state
     print(
             "put data -- phase : %s ,root_object: %s, decoration: %s, application: %s , state: %s, what: %s, "
             "value : %s"
@@ -544,22 +546,21 @@ class GraphDataObjects(OrderedDict):
             "value: %s"
             % (phase, root_object, decoration, application, state, what, value))
     if what == "action":
-      print("debugging seting actions")
+      print("debugging setting actions")
 
   def __makeData(self, phase, root_object, decoration, application, state):
     if phase not in self:
-      self[phase]={}
+      self[phase] = {}
     if root_object not in self[phase]:
-      self[phase][root_object]={}
+      self[phase][root_object] = {}
     if decoration not in self[phase][root_object]:
-      self[phase][root_object][decoration]={}
+      self[phase][root_object][decoration] = {}
     if application not in self[phase][root_object][decoration]:
       self[phase][root_object][decoration][application] = {}
-    if state not in           self[phase][root_object][decoration][application]:
-      self[phase][root_object][decoration][application][state]= {}
+    if state not in self[phase][root_object][decoration][application]:
+      self[phase][root_object][decoration][application][state] = {}
 
   def getData(self, phase, root_object, decoration, application, state):
-
 
     if decoration == NAMES["indicator token"]:
       data = IndicatorDot()
@@ -568,7 +569,6 @@ class GraphDataObjects(OrderedDict):
     elif decoration == NAMES["indicator typed token"]:
       data = IndicatorText()
       return data
-
 
     if phase == M_any:
       phase = DEFAULT_PHASE
@@ -580,7 +580,7 @@ class GraphDataObjects(OrderedDict):
     if root_object not in OBJECTS_with_state:
       state = M_None
     elif decoration not in DECORATIONS_with_state:
-        state = M_None
+      state = M_None
 
     # if state not in self[phase][root_object][decoration][application]:
     #   state = M_None
@@ -591,7 +591,7 @@ class GraphDataObjects(OrderedDict):
       if decoration not in DECORATIONS_with_application:
         application = M_None
 
-    #Note: safety valve:
+    # Note: safety valve:
     if application not in self[phase][root_object][decoration]:
       # self.__makeData(phase, root_object, decoration, application, state)
       print(" warning >>> should not come here")
@@ -741,9 +741,9 @@ def getGraphData(networks,
                  tokens,
                  graph_resource_file_spec):
   # get graph data
-  dict_application_node_types = {NAMES["node"] : list_NetworkNodeObjects,
-          NAMES["intraface"] : list_IntraNodeObjects,
-          NAMES["interface"] : list_InterNodeObjects}
+  dict_application_node_types = {NAMES["node"]     : list_NetworkNodeObjects,
+                                 NAMES["intraface"]: list_IntraNodeObjects,
+                                 NAMES["interface"]: list_InterNodeObjects}
 
   application_arc_types = list_arcObjects
   DATA = GraphDataObjects(dict_application_node_types,
@@ -788,7 +788,7 @@ def getGraphData(networks,
       NETWORK.update(data_dict["networks"])
     delete_me = set()
     for nw in NETWORK:
-      if (nw in networks) or (nw in list_connections): # list_interconnection_networks):
+      if (nw in networks) or (nw in list_connections):  # list_interconnection_networks):
         pass
       else:
         delete_me.add(nw)

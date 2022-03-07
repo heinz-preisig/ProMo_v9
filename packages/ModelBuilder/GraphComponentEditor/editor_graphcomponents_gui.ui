@@ -369,6 +369,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QRadioButton" name="radioNamedNetwork">
+           <property name="text">
+            <string>named-network</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="radioArc">
            <property name="text">
             <string>arc</string>

@@ -423,10 +423,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     open_arcs = self.commander.model_container.checkforOpenArcs()
     if len(open_arcs) == 0:
       enabled_editor_phases.append("token_topology")
-    #
-    # # RULE: no rule for the equation topology as yet
-    # enabled_editor_phases.append(("equation_topology"))
-    # self.ui.comboEditorPhase.addItems(enabled_editor_phases)
 
     self.__clearLayout(self.ui.layoutNetworks)
     self.radio_selectors["networks"] = self.__makeAndAddSelector("networks",

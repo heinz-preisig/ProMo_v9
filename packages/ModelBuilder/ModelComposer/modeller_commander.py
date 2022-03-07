@@ -397,6 +397,8 @@ class Commander(QtCore.QObject):
       res = self.__c28_injectTypedTokensOrConversions(pars["nodeID"])
     elif action == "compute token distribution":
       res = self.__c31_computeTypedTokenDomains()
+    elif action == "instantiate":
+      res = self.__c52__InstantiateObject(pars)
     else:
       action = "-"
       res = {"failed": False}
@@ -1326,8 +1328,20 @@ class Commander(QtCore.QObject):
   def __c51_AssignBehaviour(self):
     print("__c51_AssignBehaviour -- not yet implemented")
 
-  def __c52__InstantiateObject(self):
-    print("__c52__InstantiateObject -- not yet implemented")
+  def __c52__InstantiateObject(self, pars):
+    print("__c52__InstantiateObject -- not yet implemented", pars, self.model_container["nodes"][pars["nodeID"]])
+    entity_behaviours = self.model_container.ontology.entity_behaviours
+    entity = self.model_container["nodes"][pars["nodeID"]]["type"]
+    tokens = sorted(self.model_container["nodes"][pars["nodeID"]]["tokens"].keys())
+    entity_objects = []
+    for t in tokens:
+      entity_objects.append("%s|%s"%(entity, t))
+    for obj in entity_objects:
+      for ent in sorted(entity_behaviours.keys()):
+        if obj in ent:
+          print("found it", obj)
+
+    return {"failed" : False}
 
   # ===================================================================
   def __setName(self, node, name):
