@@ -29,6 +29,8 @@ import os as OS
 import os.path
 from collections import OrderedDict
 
+from copy import copy
+
 from PyQt5 import QtWidgets
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
@@ -143,7 +145,8 @@ def makeIndices(ontology_container):
     label = TEMPLATES["conversion_label"] % typed_token  # [0].capitalize()
     index["label"] = label
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
-    index["tokens"] = ontology_container.converting_tokens[typed_token] #ontology_container.token_associated_with_typed_token[typed_token]
+    index["tokens"] = ontology_container.converting_tokens[
+      typed_token]  # ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1
     indices[index_counter] = index
     makeIndexAliases(indices[index_counter], index_counter, TEMPLATES["conversion_alias"] % typed_token[0].capitalize())
@@ -185,7 +188,7 @@ def makeIndices(ontology_container):
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["indices"] = [index_outer_ID, index_inner_ID]
     driving_token = ontology_container.converting_tokens[typed_token]
-    index["tokens"] = driving_token #ontology_container.token_associated_with_typed_token[typed_token]
+    index["tokens"] = driving_token  # ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1
     indices[index_counter] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
@@ -278,10 +281,9 @@ class OntologyContainer():
     if "variable_classes_being_state_variables" not in self.rules:
       self.rules["variable_classes_being_state_variables"] = None
 
-
     #
     # TODO: converting tokens
-    file = FILES["typed_token_file"] % ontology_name #FILES["converting_tokens_file"] % ontology_name
+    file = FILES["typed_token_file"] % ontology_name  # FILES["converting_tokens_file"] % ontology_name
     self.converting_tokens = getData(file)  # ................................... make available as part of the ontology
 
     self.ontology_hierarchy = self.__makeOntologyHierarchy()  # .................... constructs hierarchy network labels
@@ -289,7 +291,9 @@ class OntologyContainer():
 
     self.list_leave_networks = self.__makeListOfLeaveNames()  # ................................ list of all leave nodes
 
-    self.list_inter_branches, self.list_inter_branches_pairs = self.__makeListInterBranches()
+    self.list_inter_branches, \
+    self.list_inter_branches_pairs, \
+    self.intra_domains = self.__makeListInterBranches()  # ..............inter domains --> where tokens can be exchanged
 
     self.interconnection_network_dictionary, \
     self.intraconnection_network_dictionary = self.__makeConnectionNetworks()  # ...... dict(connection network) of dict
@@ -362,7 +366,7 @@ class OntologyContainer():
     self.list_arc_objects, \
     self.list_reduced_network_node_objects, \
     self.list_reduced_network_arc_objects, \
-    self.list_inter_node_objects_tokens= self.__makeNodeObjectList()
+    self.list_inter_node_objects_tokens = self.__makeNodeObjectList()
 
     self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
     self.arc_info_dictionary = self.__makeArcTypeDictionary()  # TODO check usage  -->  done is used check structure
@@ -391,7 +395,7 @@ class OntologyContainer():
                                                "definition of refined tokens for example token mass refined by species"
                                                " --- continue ?",
                                                OK, NO)
-        if reply in [OK, YES] :
+        if reply in [OK, YES]:
           pass
         else:
           exit(-1)
@@ -577,10 +581,10 @@ class OntologyContainer():
       list_arc_objects_on_networks[nw] = sorted(arcObjects_on_networks[nw])
 
     list_network_node_objects = sorted(set_node_objects_on_networks)
-    list_network_node_objects_with_token =sorted(set_node_objects_on_networks_with_token)
-    list_intra_node_objects =sorted(set_node_objects_on_intra_networks)
-    list_intra_node_objects_with_token =sorted(set_node_objects_on_intra_networks_with_token)
-    list_inter_node_objects =sorted(set_node_objects_on_inter_networks)
+    list_network_node_objects_with_token = sorted(set_node_objects_on_networks_with_token)
+    list_intra_node_objects = sorted(set_node_objects_on_intra_networks)
+    list_intra_node_objects_with_token = sorted(set_node_objects_on_intra_networks_with_token)
+    list_inter_node_objects = sorted(set_node_objects_on_inter_networks)
     list_arc_objects = sorted(set_arc_objects)
 
     list_reduced_network_node_objects = {}
@@ -598,7 +602,6 @@ class OntologyContainer():
       for i in network_arc_list:
         list_reduced_network_arc_objects[nw].append(i)
 
-
     list_inter_node_objects_tokens = {}
 
     for nw in self.list_inter_branches:
@@ -614,7 +617,7 @@ class OntologyContainer():
             ss = s % (node_type, nature, token)
             list_inter_node_objects_tokens[nw].append(ss)
           if len(tokens) > 1:
-            r = str(tokens).strip("'[]").replace("'", "").replace(", ","_")
+            r = str(tokens).strip("'[]").replace("'", "").replace(", ", "_")
             ss = s % (node_type, nature, r)
             list_inter_node_objects_tokens[nw].append(ss)
 
@@ -739,12 +742,12 @@ class OntologyContainer():
               "right": r,
               "type" : type
               }
-          # cnw = TEMPLATE_CONNECTION_NETWORK%(r, l)
-          # intraconnectionNetworks[cnw] = {
-          #       "left" : r,
-          #       "right": l,
-          #       "type" : type
-          #       }
+      # cnw = TEMPLATE_CONNECTION_NETWORK%(r, l)
+      # intraconnectionNetworks[cnw] = {
+      #       "left" : r,
+      #       "right": l,
+      #       "type" : type
+      #       }
     return interconnectionNetworks, intraconnectionNetworks
 
   def __makeListOfLeaveNames(self):
@@ -795,7 +798,11 @@ class OntologyContainer():
 
     # print("debugging -- end interbranches", interbranches)
     # print("debugging -- end interbranch_pairs", interbranch_pairs)
-    return interbranches, interbranch_pairs
+    intra_domains = {}
+    for i in interbranches:
+      intra_domains[i] = copy(walkDepthFirstFnc(self.ontology_tree, i))
+
+    return interbranches, interbranch_pairs, intra_domains
 
   def __makeVariableTypeListsNetworks(self):
     variable_types_on_networks = {}
@@ -1059,8 +1066,8 @@ class OntologyContainer():
               if typed_token not in typed_token_definition_nw:
                 typed_token_definition_nw[typed_token] = nw
               token_associated_with_typed_token[typed_token] = token
-                # print("debugging - found first location of typed token %s in token %s in network %s"%(typed_token,
-                # token, nw))
+              # print("debugging - found first location of typed token %s in token %s in network %s"%(typed_token,
+              # token, nw))
     return token_definition_nw, typed_token_definition_nw, token_associated_with_typed_token
 
   def __makeEquationDictionary(self):
@@ -1084,7 +1091,7 @@ class OntologyContainer():
 
     # loaded_entity_behaviours = getData(f)
     data = getData(f)
-    entity_behaviours = VariantRecord()   # make empty structure
+    entity_behaviours = VariantRecord()  # make empty structure
     if data:
       loaded_entity_behaviours = data["behaviours"]
       # self.node_arc_associations = data["associations"]
@@ -1109,14 +1116,13 @@ class OntologyContainer():
             data["nodes"] = nodes
 
             entity_behaviours[entity_str_ID] = VariantRecord(tree=data["tree"],
-                                                                  nodes=data["nodes"],
-                                                                  IDs=data["IDs"],
-                                                                  root_variable=data["root_variable"],
-                                                                  blocked_list=data["blocked"],
-                                                                  buddies_list=data["buddies"],
-                                                                  to_be_inisialised=data["to_be_initialised"])
+                                                             nodes=data["nodes"],
+                                                             IDs=data["IDs"],
+                                                             root_variable=data["root_variable"],
+                                                             blocked_list=data["blocked"],
+                                                             buddies_list=data["buddies"],
+                                                             to_be_inisialised=data["to_be_initialised"])
     return entity_behaviours
-
 
   def __makeEquationAndIndexLists(self):
 
@@ -1138,7 +1144,6 @@ class OntologyContainer():
 
       rendered_variable = self.variables[var_ID]["aliases"]["internal_code"]
       equation_label = "%s := %s" % (rendered_variable, rendered_expressions)
-
 
       # equations[eq_ID] = (var_ID, var_type, nw_eq, rendered_equation, pixelled_equation)
       equations.append(equation_label)
@@ -1173,7 +1178,7 @@ class OntologyContainer():
 
     data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, self.ProMoIRI)
 
-    saveWithBackup(data, f_name)# NOTE: every saving generates a backup file -- enables scrolling back
+    saveWithBackup(data, f_name)  # NOTE: every saving generates a backup file -- enables scrolling back
     # putData(data, f_name)
 
   def readVariables(self):
@@ -1214,7 +1219,6 @@ class OntologyContainer():
       reply = QtWidgets.QMessageBox.warning(QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
       if reply == OK:
         exit(-1)
-        
 
   def readNodeAssignments(self):
     # print("debugging -- read node assignments")
@@ -1223,7 +1227,6 @@ class OntologyContainer():
     if OS.path.exists(assignment_file_name):
       data = self.__readVariableAssignmentFile(assignment_file_name)
       return
-
 
     # msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
     #       "" \
@@ -1263,7 +1266,8 @@ class OntologyContainer():
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
       except:
-        variables_raw[ID]["tokens"] = [] # todo: not sure when it goes wrong. Not defining token results in "" as tokens
+        variables_raw[ID][
+          "tokens"] = []  # todo: not sure when it goes wrong. Not defining token results in "" as tokens
       # token_raw = variables_raw[ID]["tokens"]
       # if token_raw == "":
       #   variables_raw[ID]["tokens"]  = []

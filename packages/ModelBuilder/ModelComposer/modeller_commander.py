@@ -99,6 +99,8 @@ class Commander(QtCore.QObject):
     self.schnipsel_file = None
     self.modified = False
 
+    self.selected_entity_behaviour = None
+
     # handling connections - arcs
     self.selected_arcID = None
     self.arcSourceID = None
@@ -1329,19 +1331,40 @@ class Commander(QtCore.QObject):
     print("__c51_AssignBehaviour -- not yet implemented")
 
   def __c52__InstantiateObject(self, pars):
-    print("__c52__InstantiateObject -- not yet implemented", pars, self.model_container["nodes"][pars["nodeID"]])
+    print("debugging -- node group:", self.node_group)
+    nodeIDs = []
+    if self.node_group:
+      for n in self.node_group:
+        nodeIDs.append(self.node_group[n].ID)
+    else:
+      nodeIDs = [pars["nodeID"]]
+
+    # print("__c52__InstantiateObject -- not yet implemented", pars, self.model_container["nodes"][pars["nodeID"]])
+    for ID in nodeIDs:
+      selected_entity_behaviour = self.__getEntityBehaviour(ID)
+      print("debugging -- behaviour:", selected_entity_behaviour)
+    return
+
+  def __getEntityBehaviour(self, nodeID):
+    selected_entity_behaviour = None
     entity_behaviours = self.model_container.ontology.entity_behaviours
-    entity = self.model_container["nodes"][pars["nodeID"]]["type"]
-    tokens = sorted(self.model_container["nodes"][pars["nodeID"]]["tokens"].keys())
+    entity = self.model_container["nodes"][nodeID]["type"]
+    entity_nw = self.model_container["nodes"][nodeID]["network"]
+    nws = list(self.model_container.ontology.intra_domains.keys())
+    for nw in nws:
+      if entity_nw in self.model_container.ontology.intra_domains[nw]:
+        entity_domain = self.model_container.ontology.intra_domains[nw][0]
+    tokens = sorted(self.model_container["nodes"][nodeID]["tokens"].keys())
     entity_objects = []
     for t in tokens:
-      entity_objects.append("%s|%s"%(entity, t))
+      # RULE: we pick the default version. For the time being there is no choice given
+      entity_objects.append("%s.node.%s|%s.default" % (entity_domain, entity, t))
     for obj in entity_objects:
       for ent in sorted(entity_behaviours.keys()):
         if obj in ent:
-          print("found it", obj)
-
-    return {"failed" : False}
+          print("found it", ent)
+          selected_entity_behaviour = entity_behaviours[ent]
+    return selected_entity_behaviour
 
   # ===================================================================
   def __setName(self, node, name):
