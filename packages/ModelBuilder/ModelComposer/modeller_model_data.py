@@ -750,6 +750,11 @@ class ModelContainer(dict):
 
   def makeAndWriteFlatTopology(self, f):
 
+    flat_data = self.makeFlatTopology()
+
+    CR.putData(flat_data, f)
+
+  def makeFlatTopology(self):
     # make and write flat file
     leave_nodes = self["ID_tree"].getAllLeaveNodes()
     flat_data = {}
@@ -758,16 +763,13 @@ class ModelContainer(dict):
       flat_data["nodes"][node] = self["nodes"][node]
     for h in ["arcs", "named_networks"]:
       flat_data[h] = self[h]
-
-    D, TD, I_tokens, I_typed_tokens,typed_tokens = self.updateTypedTokensInAllDomains()
-
+    D, TD, I_tokens, I_typed_tokens, typed_tokens = self.updateTypedTokensInAllDomains()
     flat_data["token_domains"] = D
     flat_data["typed_token_domains"] = TD
     flat_data["token_incidence_matrix"] = I_tokens
     flat_data["typed_token_incidence_matrix"] = I_typed_tokens
     flat_data["typed_token_lists"] = typed_tokens
-
-    CR.putData(flat_data, f)
+    return flat_data
 
   def getAndFixData(self, f):
     """
